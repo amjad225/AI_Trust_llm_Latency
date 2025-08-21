@@ -1,0 +1,163 @@
+{
+  "filename": "BOT-6505-multi-bot-validation.json",
+  "name": "BOT-6505: Multi-Bot Message Pattern Validation",
+  "description": "Ultimate validation test for BOT-6505 fix using a bot that sends multiple consecutive messages. Tests the exact conversation patterns that broke the old turn-based system: user->bot->bot->user->bot->user->bot->bot->bot patterns.",
+  "domain": "banking services",
+  "compositeObjectives": [
+    {
+      "name": "Multi-Bot Message Sequence Validation",
+      "description": "Testing step tracking accuracy with the exact patterns that broke the old Math.floor(satisfiedAtTurn/2)+1 formula",
+      "persona": "Customer triggering multi-bot responses",
+      "userVariables": {
+        "customerName": "Alex Multi-Test",
+        "scenario": "multi_bot_validation",
+        "expectedPattern": "user->bot->bot->user->bot->user->bot->bot->bot"
+      },
+      "subObjectives": [
+        {
+          "description": "Bot provides initial greeting",
+          "instructions": "Say 'Hello' - expect bot to respond with greeting. This should be satisfied at step 2. Old system would calculate correctly by accident, new system shows step 2 directly.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot sends follow-up assistance offer",
+          "instructions": "The bot should send a second message offering help immediately after greeting. This should be satisfied at step 3. OLD SYSTEM BUG: satisfiedAtTurn=2 → Math.floor(2/2)+1=Turn 2 ❌. NEW SYSTEM: satisfiedAtStep=3 ✅.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 8
+          }
+        },
+        {
+          "description": "Bot acknowledges complex request",
+          "instructions": "Ask 'I need help with my account balance and also want to transfer money to another account. Can you help me with both?' - expect bot to acknowledge the complex multi-part request.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot provides account balance information",
+          "instructions": "Bot should provide or explain how to get account balance information. If this occurs in a multi-bot sequence (e.g., step 6), verify step tracking is accurate.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 10
+          }
+        },
+        {
+          "description": "Bot addresses transfer functionality",
+          "instructions": "Bot should address the money transfer part of the request. This may come in a separate message after the balance info. Test step tracking across consecutive bot responses.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 10
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical Step Position Validation",
+      "description": "Validates the exact step positions mentioned in the original BOT-6505 ticket",
+      "persona": "Step counting validator",
+      "userVariables": {
+        "userName": "Step Validator",
+        "testType": "position_validation"
+      },
+      "subObjectives": [
+        {
+          "description": "Objective satisfied at exactly step 3 in multi-bot sequence",
+          "instructions": "Ask 'Can you help me understand my account options?' - trigger a scenario where satisfaction occurs at step 3. CRITICAL TEST: Old system satisfiedAtTurn=2 → Math.floor(2/2)+1=Turn 2 ❌. New system satisfiedAtStep=3 ✅.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 6
+          }
+        },
+        {
+          "description": "Objective satisfied at step 5 in extended sequence",
+          "instructions": "Continue conversation to create pattern: user->bot->bot->user->bot (satisfaction at step 5). OLD BUG: satisfiedAtTurn=4 → Math.floor(4/2)+1=Turn 3 ❌. NEW FIX: satisfiedAtStep=5 ✅.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "latest_match",
+            "recentTurnCount": 7
+          }
+        },
+        {
+          "description": "Objective satisfied in triple-bot sequence",
+          "instructions": "Ask 'What are all my banking options?' to trigger bot->bot->bot pattern. If satisfied at step 7 in sequence, should show satisfiedAtStep=7 (not Turn 4).",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regression Validation",
+      "description": "Ensures our fix doesn't break normal conversation patterns",
+      "persona": "Regression tester",
+      "userVariables": {
+        "userName": "Regression User",
+        "testType": "regression_check"
+      },
+      "subObjectives": [
+        {
+          "description": "Normal single-bot response tracking",
+          "instructions": "Say 'Thank you' - expect single bot response. Step tracking should work normally for non-multi-bot patterns.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Alternating user-bot pattern works correctly",
+          "instructions": "Have a normal back-and-forth conversation. Verify step tracking remains accurate for standard patterns.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 8
+          }
+        },
+        {
+          "description": "Mixed pattern handling",
+          "instructions": "Create a conversation with both normal and multi-bot patterns. Test that step tracking is consistent throughout.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "best_match",
+            "recentTurnCount": 6
+          }
+        }
+      ]
+    }
+  ]
+}

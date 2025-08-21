@@ -1,0 +1,148 @@
+{
+  "filename": "BOT-6439-recent-scope-boundary-tests.json",
+  "name": "BOT-6439: Recent Scope Boundary Tests",
+  "description": "Comprehensive boundary testing for recent scope calculations to ensure proper turn range evaluation at different conversation lengths and recent turn counts.",
+  "domain": "customer service",
+  "compositeObjectives": [
+    {
+      "name": "Recent Scope Count = 1 (Single Turn)",
+      "description": "Test recent scope with count=1 - should only look at most recent turn",
+      "persona": "Direct customer",
+      "userVariables": {
+        "testCase": "boundary_single_turn"
+      },
+      "subObjectives": [
+        {
+          "description": "Bot should greet in first exchange",
+          "instructions": "Say 'Hi' and expect a greeting response. With recentTurnCount=1, this should be found when evaluated after Turn 1.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 1
+          }
+        },
+        {
+          "description": "Bot should not find early greeting in later turns",
+          "instructions": "Continue conversation with non-greeting content. The greeting objective should NOT be satisfied in these later turns with recentTurnCount=1.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recent Scope Count = 2 (Two Turn Window)",
+      "description": "Test recent scope with count=2 - the original bug scenario",
+      "persona": "Helpful user",
+      "userVariables": {
+        "testCase": "boundary_two_turns"
+      },
+      "subObjectives": [
+        {
+          "description": "Bot provides initial greeting",
+          "instructions": "Start with 'Hello' - this should be detected in Turn 1 even when evaluated at Turn 2.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 2
+          }
+        },
+        {
+          "description": "Bot offers help or services",
+          "instructions": "Ask 'What can you help me with?' and expect the bot to explain its capabilities.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 2
+          }
+        },
+        {
+          "description": "Bot responds to specific requests",
+          "instructions": "Make a specific request and expect appropriate handling. When evaluated at Turn 3, recentTurnCount=2 should look at Turns 2-3 only.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recent Scope Count = 5 (Large Window)",
+      "description": "Test recent scope with larger window to ensure proper calculation",
+      "persona": "Chatty customer",
+      "userVariables": {
+        "testCase": "boundary_large_window"
+      },
+      "subObjectives": [
+        {
+          "description": "Bot greets user warmly",
+          "instructions": "Say 'Good morning!' and expect a warm greeting back. With recentTurnCount=5, this should be found in Turn 1 even when evaluated much later.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot maintains conversation flow",
+          "instructions": "Continue with 'How are you today?' and expect appropriate response.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot provides information when asked",
+          "instructions": "Ask 'What services do you offer?' and expect informative response.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot handles follow-up questions",
+          "instructions": "Ask a follow-up question based on the previous response.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot provides assistance in extended conversation",
+          "instructions": "Continue the conversation and ask for specific help. At Turn 5, recentTurnCount=5 should still include the original greeting from Turn 1.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        }
+      ]
+    }
+  ]
+} 

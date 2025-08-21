@@ -1,0 +1,141 @@
+{
+  "filename": "BOT-6505-step-tracking-edge-cases.json",
+  "name": "BOT-6505: Edge Cases for Step Tracking System",
+  "description": "Tests edge cases for step-based tracking including bot-initiated conversations, rapid multi-responses, and unusual conversation patterns that previously broke turn-based calculations.",
+  "domain": "automated assistant",
+  "compositeObjectives": [
+    {
+      "name": "Bot-Initiated Conversation Edge Cases",
+      "description": "Testing step tracking when bot initiates conversation or sends rapid consecutive messages",
+      "persona": "User in bot-initiated scenario",
+      "userVariables": {
+        "userName": "Taylor Kim",
+        "scenario": "bot_initiated",
+        "responseSpeed": "rapid"
+      },
+      "subObjectives": [
+        {
+          "description": "Bot initiates conversation with welcome",
+          "instructions": "Wait for bot to speak first, then respond with 'Hi'. Tests step tracking when bot opens conversation (step 1 = bot message).",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 3
+          }
+        },
+        {
+          "description": "Bot sends rapid consecutive clarifications",
+          "instructions": "Say something unclear like 'uh, maybe?' and expect the bot to send multiple quick clarification messages. Tests step tracking with rapid bot responses.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "best_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Bot provides error message and recovery",
+          "instructions": "Say something that triggers an error, then expect error message followed by recovery attempt. Tests step tracking across error handling.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "latest_match",
+            "recentTurnCount": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unusual Conversation Patterns",
+      "description": "Testing step tracking with unusual patterns that broke the old turn-based system",
+      "persona": "User creating edge case scenarios",
+      "userVariables": {
+        "userName": "Jordan Park",
+        "testType": "edge_cases"
+      },
+      "subObjectives": [
+        {
+          "description": "Bot sends introductory sequence",
+          "instructions": "Start conversation and expect bot to send multiple intro messages (welcome, explanation, menu). The old system would incorrectly calculate: satisfiedAtTurn=2 → Math.floor(2/2)+1 = Turn 2, but should be Step 3.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 6
+          }
+        },
+        {
+          "description": "Bot handles interruption gracefully",
+          "instructions": "Interrupt the bot mid-sequence with 'wait' and expect graceful handling. Tests step tracking when conversation flow is disrupted.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 3
+          }
+        },
+        {
+          "description": "Bot provides final multi-part conclusion",
+          "instructions": "Say 'thank you' and expect multi-part farewell (goodbye, summary, contact info). Tests step tracking in conclusion sequences.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "best_match",
+            "recentTurnCount": 5
+          }
+        }
+      ]
+    },
+    {
+      "name": "Step Validation Scenarios",
+      "description": "Specific scenarios designed to validate exact step counting vs old turn conversion",
+      "persona": "Test validator checking step accuracy",
+      "userVariables": {
+        "userName": "Casey Wong",
+        "validationType": "step_accuracy"
+      },
+      "subObjectives": [
+        {
+          "description": "Objective satisfied at conversation step 3",
+          "instructions": "Create a scenario where objective satisfaction occurs at exactly step 3 (user->bot->bot->satisfied). Old system: satisfiedAtTurn=2 → Math.floor(2/2)+1=Turn 2 ❌. New system: satisfiedAtStep=3 ✅.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 5
+          }
+        },
+        {
+          "description": "Objective satisfied at conversation step 5",
+          "instructions": "Create a scenario where satisfaction occurs at step 5. Old system: satisfiedAtTurn=4 → Math.floor(4/2)+1=Turn 3 ❌. New system: satisfiedAtStep=5 ✅.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 7
+          }
+        },
+        {
+          "description": "Objective satisfied in multi-bot sequence",
+          "instructions": "Trigger a scenario with pattern: user->bot->bot->bot->satisfied at step 4. Tests that step tracking handles any conversation pattern correctly.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 6
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "filename": "BOT-6439-greeting-recent-scope-bug.json",
+  "name": "BOT-6439: Greeting Detection Bug with Recent Scope",
+  "description": "Test scenario to reproduce and validate the fix for the critical turn matching bug where greeting objectives are incorrectly detected in Turn 4 instead of Turn 1 when using recent scope configuration.",
+  "domain": "AI assistance",
+  "compositeObjectives": [
+    {
+      "name": "Reproduce Original Bug: Greeting with Recent Scope",
+      "description": "This should detect greeting in Turn 1, not Turn 4",
+      "persona": "Polite and kind",
+      "userVariables": {
+        "userName": "TestUser",
+        "taskType": "meeting scheduling"
+      },
+      "subObjectives": [
+        {
+          "description": "Chatbot should greet and offer assistance",
+          "instructions": "Start with a simple 'Hello' and expect the bot to greet you warmly and offer help. This objective should be satisfied in Turn 1, not later turns.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 2
+          }
+        },
+        {
+          "description": "Chatbot should ask for task details",
+          "instructions": "After the greeting, mention you need help with scheduling and expect the bot to ask for details about what you need.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "recent",
+            "evaluationStrategy": "first_match",
+            "recentTurnCount": 3
+          }
+        },
+        {
+          "description": "Chatbot should provide helpful response about limitations",
+          "instructions": "Ask about something the bot cannot do (like accessing calendars) and expect a helpful explanation of limitations.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation: Same Greeting with 'Any' Scope",
+      "description": "Control test - same greeting but with 'any' scope should also work",
+      "persona": "Professional assistant seeker",
+      "userVariables": {
+        "userName": "ControlUser",
+        "taskType": "general assistance"
+      },
+      "subObjectives": [
+        {
+          "description": "Chatbot should greet and offer assistance",
+          "instructions": "Start with a simple 'Hello' and expect the bot to greet you warmly and offer help. This should be detected in Turn 1 with 'any' scope.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "any",
+            "evaluationStrategy": "first_match"
+          }
+        },
+        {
+          "description": "Chatbot should respond to follow-up questions",
+          "instructions": "Ask a follow-up question about available services and expect a helpful response.",
+          "isBlocking": false,
+          "onFailure": null,
+          "turnMatching": {
+            "scope": "current",
+            "evaluationStrategy": "first_match"
+          }
+        }
+      ]
+    }
+  ]
+} 
